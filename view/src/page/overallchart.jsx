@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Bar, Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -45,7 +45,8 @@ const OverallChart = () => {
     "December",
   ];
 
-  const fetchData = async () => {
+  // Memoize fetchData to prevent unnecessary re-renders
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(
@@ -83,11 +84,11 @@ const OverallChart = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [year, weekly, monthNames]);
 
   useEffect(() => {
     fetchData();
-  }, [year, weekly]);
+  }, [fetchData]); // Add fetchData to dependency array
 
   return (
     <div
@@ -107,7 +108,7 @@ const OverallChart = () => {
       <div style={{ marginBottom: "20px", display: "flex", gap: "10px" }}>
         <select
           value={year}
-          onChange={(e) => setYear(e.target.value)}
+          onChange={(e) => setYear(Number(e.target.value))}
           style={{
             padding: "10px",
             borderRadius: "5px",
