@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Loading from "../components/Animation/Loading";
+import PropTypes from "prop-types";
 
 // SnackBar component defined directly in the file
 function SnackBar({ message, type }) {
@@ -26,6 +27,12 @@ function SnackBar({ message, type }) {
     </div>
   );
 }
+
+// Add prop type validation
+SnackBar.propTypes = {
+  message: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(["success", "error", "default"]).isRequired,
+};
 
 const Logout = () => {
   const navigate = useNavigate();
