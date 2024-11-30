@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useState } from "react";
 import Loading from "../components/Animation/Loading";
+import PropTypes from "prop-types";
 // import SnackBar from "../components/Animation/SnackBar";
 function SnackBar({ message, type }) {
   const bgColor =

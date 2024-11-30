@@ -5,6 +5,7 @@ import { useRef } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Animation/Loading";
+import PropTypes from "prop-types";
 // import SnackBar from "../components/Animation/SnackBar";
 function SnackBar({ message, type }) {
   const bgColor =
