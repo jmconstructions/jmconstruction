@@ -22,7 +22,8 @@ const Chart = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "http://127.0.0.1:3000/api/v1/sitereport/employeeperformance"
+          // "http://127.0.0.1:3000/api/v1/sitereport/employeeperformance"
+          "https://jmconstruction.onrender.com/api/v1/sitereport/employeeperformance"
         );
         const result = await response.json();
 

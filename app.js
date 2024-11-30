@@ -31,7 +31,8 @@ app.use(express.json());
 app.use(cookieparser());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    // origin: "http://localhost:5173",
+    origin: "https://jmconstruction-1.onrender.com",
     credentials: true,
     origin: true,
     optionsSuccessStatus: 200,

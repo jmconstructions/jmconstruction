@@ -290,7 +290,8 @@ exports.getInspectionTrends = catchAsync(async (req, res, next) => {
 exports.generatePDF = catchAsync(async (req, res, next) => {
   let browser = null;
   const { id } = req.params;
-  const url = `http://localhost:5173/pdf/${id}`;
+  // const url = `http://localhost:5173/pdf/${id}`;
+  const url = `https://jmconstruction-1.onrender.com/pdf/${id}`;
 
   try {
     browser = await puppeteer.launch({

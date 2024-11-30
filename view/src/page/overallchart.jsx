@@ -49,7 +49,8 @@ const OverallChart = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `http://127.0.0.1:3000/api/v1/sitereport/trends?year=${year}&weekly=${weekly}`
+        // `http://127.0.0.1:3000/api/v1/sitereport/trends?year=${year}&weekly=${weekly}`
+        `https://jmconstruction.onrender.com/api/v1/sitereport/trends?year=${year}&weekly=${weekly}`
       );
       const result = await response.json();
       if (result.status === "success" && Array.isArray(result.data)) {

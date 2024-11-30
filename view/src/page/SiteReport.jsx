@@ -15,7 +15,8 @@ const SiteReport = () => {
     const fetchReportData = async () => {
       try {
         const response = await axios.get(
-          `http://127.0.0.1:3000/api/v1/sitereport/${params.id}`
+          // `http://127.0.0.1:3000/api/v1/sitereport/${params.id}`
+          `https://jmconstruction.onrender.com/api/v1/sitereport/${params.id}`
         );
         setReportData(response.data.data.data);
         setIsLoading(false);

@@ -35,7 +35,8 @@ const ReportManagement = () => {
       setIsLoading(true);
       setError("");
       const response = await axios.get(
-        "http://127.0.0.1:3000/api/v1/sitereport"
+        // "http://127.0.0.1:3000/api/v1/sitereport"
+        "https://jmconstruction.onrender.com/api/v1/sitereport"
       );
 
       if (response.status !== 200) {
@@ -103,7 +104,8 @@ const ReportManagement = () => {
     if (window.confirm("Are you sure you want to delete this report?")) {
       try {
         await axios.delete(
-          `http://127.0.0.1:3000/api/v1/sitereport/${reportId}`
+          // `http://127.0.0.1:3000/api/v1/sitereport/${reportId}`
+          `https://jmconstruction.onrender.com/api/v1/sitereport/${reportId}`
         );
         const updatedReports = reportData.filter(
           (report) => report._id !== reportId

@@ -12,7 +12,8 @@ function PdfReport() {
     const fetchReportData = async () => {
       try {
         const response = await axios.get(
-          `http://127.0.0.1:3000/api/v1/sitereport/${id}`
+          // `http://127.0.0.1:3000/api/v1/sitereport/${id}`
+          `https://jmconstruction.onrender.com/api/v1/sitereport/${id}`
         );
         setReportData(response.data.data.data);
       } catch (error) {
@@ -32,7 +33,8 @@ function PdfReport() {
 
       // Fetch the PDF from the API
       const response = await fetch(
-        `http://127.0.0.1:3000/api/v1/sitereport/report/${id}`,
+        // `http://127.0.0.1:3000/api/v1/sitereport/report/${id}`,
+        `https://jmconstruction.onrender.com/api/v1/sitereport/report/${id}`,
         {
           method: "GET",
         }

@@ -38,7 +38,8 @@ const UserManagementPage = () => {
     const fetchUsers = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5173/api/v1/user/alluser"
+          // "http://localhost:5173/api/v1/user/alluser"
+          "https://jmconstruction-1.onrender.com/api/v1/user/alluser"
         );
         if (!response.ok) throw new Error("Failed to fetch users");
         const data = await response.json();
@@ -70,7 +71,8 @@ const UserManagementPage = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5173/api/v1/user/${selectedUser.id}`,
+        // `http://localhost:5173/api/v1/user/${selectedUser.id}`,
+        `https://jmconstruction-1.onrender.com/api/v1/user/${selectedUser.id}`,
         {
           method: "PATCH",
           headers: {
@@ -100,7 +102,8 @@ const UserManagementPage = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:5173/api/v1/user/${selectedUser.id}`,
+        // `http://localhost:5173/api/v1/user/${selectedUser.id}`,
+        `https://jmconstruction-1.onrender.com/api/v1/user/${selectedUser.id}`,
         {
           method: "DELETE",
         }

@@ -16,7 +16,8 @@ const AllReportPage = () => {
         setIsLoading(true);
         setError("");
         const response = await axios.get(
-          `http://127.0.0.1:3000/api/v1/sitereport`
+          // `http://127.0.0.1:3000/api/v1/sitereport`
+          `https://jmconstruction.onrender.com/api/v1/sitereport`
         );
 
         if (response.status !== 200)
@@ -47,7 +48,8 @@ const AllReportPage = () => {
 
     try {
       const response = await axios.get(
-        `http://127.0.0.1:3000/api/v1/sitereport/search?name=${searchName}`
+        // `http://127.0.0.1:3000/api/v1/sitereport/search?name=${searchName}`
+        `https://jmconstruction.onrender.com/api/v1/sitereport/search?name=${searchName}`
       );
 
       if (response.status !== 200)
