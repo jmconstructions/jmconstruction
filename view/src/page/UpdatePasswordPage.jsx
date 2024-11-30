@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Loading from "../components/Animation/Loading";
+import SnackBar from "../components/Animation/SnackBar";
 
 const UpdatePasswordPage = () => {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -178,14 +179,16 @@ const UpdatePasswordPage = () => {
               </div>
             </div>
             {updateError && (
-              <div className="text-red-500 text-center mt-4">
-                Failed to update password. Please try again.
-              </div>
+              <SnackBar
+                message="Failed to update password. Please try again."
+                type="error"
+              />
             )}
             {showSuccessAlert && (
-              <div className="text-green-500 text-center mt-4">
-                Password updated successfully!
-              </div>
+              <SnackBar
+                message="Password updated successfully!"
+                type="success"
+              />
             )}
           </form>
         </div>

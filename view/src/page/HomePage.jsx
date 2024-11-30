@@ -1,9 +1,7 @@
 /* eslint-disable no-unused-vars */
 // HomePage.js
 import hero1 from "../assets/Bgimage.jpg";
-// import hero2 from "../assets/heronew.webp";
-// import hero3 from "../assets/bgImage1.webp";
-// import hero4 from "../assets/imageSingin.webp";
+
 import { useState, useEffect } from "react";
 import {
   Menu,
@@ -73,7 +71,7 @@ const HomePage = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isVisible, setIsVisible] = useState({});
 
-  const heroImages = [hero1];
+  const heroImages = [hero1, hero2, hero3, hero4];
 
   const services = [
     {
