@@ -31,19 +31,28 @@ app.use(express.json());
 app.use(cookieparser());
 app.use(
   cors({
-    // origin: "http://localhost:5173",
-    origin: "https://jmconstruction-1.onrender.com",
+    origin: [
+      "http://localhost:5173",
+      "https://jmconstruction-1.onrender.com",
+      "https://jmconstruction.onrender.com",
+    ],
     credentials: true,
-    origin: true,
-    optionsSuccessStatus: 200,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
-      "set-cookie",
+      "Origin",
+      "X-Requested-With",
       "Content-Type",
+      "Accept",
+      "Authorization",
+      "Set-Cookie",
       "Access-Control-Allow-Origin",
       "Access-Control-Allow-Credentials",
     ],
   })
 );
+
+// Add this BEFORE your routes
+app.options("*", cors()); // Enable preflight requests for all routes
 app.use(cookieparser());
 
 //data sanitization against NoSQL query injection
