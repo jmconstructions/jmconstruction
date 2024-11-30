@@ -5,8 +5,35 @@ import { useRef } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import { useNavigate } from "react-router-dom";
 import Loading from "../components/Animation/Loading";
-import SnackBar from "../components/Animation/SnackBar";
+// import SnackBar from "../components/Animation/SnackBar";
+function SnackBar({ message, type }) {
+  const bgColor =
+    type === "success"
+      ? "bg-green-500"
+      : type === "error"
+      ? "bg-red-500"
+      : "bg-gray-500";
 
+  return (
+    <div
+      className={`${bgColor} py-2 px-4 rounded-md text-white text-center fixed bottom-4 right-4 flex gap-4`}
+    >
+      <p>{message}</p>
+      <span
+        className="cursor-pointer font-bold"
+        onClick={(e) => e.target.parentNode.remove()}
+      >
+        <sup>X</sup>
+      </span>
+    </div>
+  );
+}
+
+// Add prop type validation
+SnackBar.propTypes = {
+  message: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(["success", "error", "default"]).isRequired,
+};
 function FormDesign({ userData }) {
   const clientSignatureRef = useRef();
   const employeeSignatureRef = useRef();
