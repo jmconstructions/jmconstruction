@@ -47,7 +47,7 @@ const UserProfile = ({ userData }) => {
       try {
         // const response = await fetch("http://localhost:5173/api/v1/user/user");
         const response = await fetch(
-          "https://jmconstruction.onrender.com/api/v1/user/user"
+          "https://jmconstruction-1.onrender.com/api/v1/user/user"
         );
         const data = await response.json();
 
