@@ -2,7 +2,30 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Loading from "../components/Animation/Loading";
-import SnackBar from "../components/Animation/Snackbar.jsx";
+
+// SnackBar component defined directly in the file
+function SnackBar({ message, type }) {
+  const bgColor =
+    type === "success"
+      ? "bg-green-500"
+      : type === "error"
+      ? "bg-red-500"
+      : "bg-gray-500";
+
+  return (
+    <div
+      className={`${bgColor} py-2 px-4 rounded-md text-white text-center fixed bottom-4 right-4 flex gap-4`}
+    >
+      <p>{message}</p>
+      <span
+        className="cursor-pointer font-bold"
+        onClick={(e) => e.target.parentNode.remove()}
+      >
+        <sup>X</sup>
+      </span>
+    </div>
+  );
+}
 
 const Logout = () => {
   const navigate = useNavigate();
@@ -22,7 +45,6 @@ const Logout = () => {
           setShowNotification(true);
 
           // Wait for notification to show before redirecting
-          // Wait for notification to show before redirecting
           setTimeout(() => {
             window.location.assign("/"); // This will reload the page
           }, 200);
@@ -34,7 +56,6 @@ const Logout = () => {
           setShowNotification(true);
 
           // Redirect to home even on error after showing message
-          // Wait for notification to show before redirecting
           setTimeout(() => {
             window.location.assign("/"); // This will reload the page
           }, 200);
