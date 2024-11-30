@@ -14,7 +14,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "dist", // Ensure this is set to 'dist'
+    outDir: "build", // Changed from 'dist' to 'build'
   },
 });
 // vite.config.js
