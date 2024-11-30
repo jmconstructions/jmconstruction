@@ -12,7 +12,7 @@ const useUserData = () => {
       try {
         const response = await axios.get(
           // "http://localhost:5173/api/v1/user/user"
-          "https://jmconstruction-1.onrender.com/api/v1/user/user"
+          "https://jmconstruction.onrender.com/api/v1/user/user"
         );
         console.log("repsonse", response.data);
         setUserData(response.data);
