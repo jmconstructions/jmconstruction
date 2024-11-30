@@ -71,7 +71,7 @@ const HomePage = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isVisible, setIsVisible] = useState({});
 
-  const heroImages = [hero1, hero2, hero3, hero4];
+  const heroImages = [hero1];
 
   const services = [
     {
