@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Loading from "../components/Animation/Loading";
-import SnackBar from "../components/Animation/SnackBar";
+import SnackBar from "../components/Animation/Snackbar.jsx";
 
 const Logout = () => {
   const navigate = useNavigate();
