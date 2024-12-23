@@ -29,6 +29,7 @@
     "react-image": "^4.1.0",
     "react-router-dom": "^6.28.0",
     "react-signature-canvas": "^1.0.6",
+    "rushabhconstruction": "file:..",
     "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
