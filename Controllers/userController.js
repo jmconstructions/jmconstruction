@@ -2,11 +2,11 @@ const multer = require("multer");
 
 const sharp = require("sharp");
 
-const AppError = require("../utils/appErrors");
+const AppError = require("./../utils/appErrors");
 
-const catchAsync = require("../utils/catchAsync");
+const catchAsync = require("./../utils/catchAsync");
 
-const User = require("../models/userModel");
+const User = require("./../models/userModel");
 
 exports.getdetails = catchAsync(async (req, res, next) => {
   let token;
