@@ -290,24 +290,19 @@ exports.getInspectionTrends = catchAsync(async (req, res, next) => {
 exports.generatePDF = catchAsync(async (req, res, next) => {
   let browser = null;
   const { id } = req.params;
-  // const url = `http://localhost:5173/pdf/${id}`;
   const url = `https://jmconstruction-1.onrender.com/pdf/${id}`;
 
   try {
     browser = await puppeteer.launch({
-      executablePath: "/usr/bin/chromium-browser",
-      headless: true,
       args: [
-        "--disable-gpu",
-        "--disable-dev-shm-usage",
-        "--disable-setuid-sandbox",
-        "--no-first-run",
         "--no-sandbox",
-        "--no-zygote",
-        "--single-process",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--disable-gpu",
+        "--no-first-run",
       ],
-      ignoreDefaultArgs: ["--disable-extensions"],
-      timeout: 120000, // 2 minutes
+      headless: "new",
     });
 
     const page = await browser.newPage();
