@@ -191,6 +191,7 @@ const Chart = () => {
         const response = await axiosInstance.get(
           "/sitereport/employeeperformance"
         );
+        console.log(response);
         const result = response.data; // Access data from axios response
 
         if (result.status === "success" && Array.isArray(result.data)) {
