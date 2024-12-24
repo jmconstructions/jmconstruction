@@ -296,7 +296,6 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
 
   try {
     browser = await puppeteer.launch({
-      executablePath: "/usr/bin/chromium-browser",
       headless: "new",
       args: [
         "--no-sandbox",
