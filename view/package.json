@@ -29,7 +29,10 @@
     "react-image": "^4.1.0",
     "react-router-dom": "^6.28.0",
     "react-signature-canvas": "^1.0.6",
-    "tailwind-merge": "^2.5.4"
+    "tailwind-merge": "^2.5.4",
+    "tailwindcss": "^3.0.0",
+    "postcss": "^8.0.0",
+    "autoprefixer": "^10.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
