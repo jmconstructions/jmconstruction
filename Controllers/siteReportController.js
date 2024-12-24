@@ -479,190 +479,70 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
   const { id } = req.params;
   const url = `https://jmconstruction.onrender.com/pdf/${id}`;
 
-  // Set environment variable for Puppeteer cache directory
-  process.env.PUPPETEER_CACHE_DIR = "/opt/render/.cache/puppeteer";
-
   try {
-    // Debug logging
-    console.log("Starting PDF generation process for ID:", id);
-    console.log(
-      "Checking if Chromium exists:",
-      fs.existsSync("/usr/bin/chromium")
-    );
+    console.log("Starting PDF generation process");
 
-    // Launch Puppeteer browser with Chromium
+    // Simplified browser launch configuration
     browser = await puppeteer.launch({
       headless: true,
-      executablePath: "/usr/bin/chromium",
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
         "--disable-gpu",
         "--disable-dev-shm-usage",
-        "--window-size=1920,1080",
-        "--disable-software-rasterizer",
-        "--disable-dev-tools",
-        "--no-first-run",
-        "--no-zygote",
-        "--single-process", // Important for render.com
-        "--disable-extensions",
       ],
-      timeout: 120000, // 2 minutes
     });
-
-    console.log("Browser launched successfully");
 
     const page = await browser.newPage();
-
-    // Set longer timeout for navigation
     await page.setDefaultNavigationTimeout(60000);
+    await page.setViewport({ width: 1920, height: 1080 });
 
-    // Set viewport
-    await page.setViewport({
-      width: 1920,
-      height: 1080,
-      deviceScaleFactor: 1,
+    console.log("Navigating to:", url);
+    await page.goto(url, {
+      waitUntil: ["load", "networkidle0"],
+      timeout: 60000,
     });
 
-    // Add request interception to debug network issues
-    await page.setRequestInterception(true);
-    page.on("request", (request) => {
-      console.log(`Request to: ${request.url()}`);
-      request.continue();
+    // Remove navbar and adjust content
+    await page.evaluate(() => {
+      const nav = document.querySelector("nav");
+      if (nav) nav.remove();
+      const reportContent = document.querySelector("#report-content");
+      if (reportContent) {
+        reportContent.style.marginTop = "0";
+        reportContent.style.paddingTop = "0";
+      }
+      const button = document.querySelector('button[onClick="downloadPDF()"]');
+      if (button) button.remove();
     });
 
-    page.on("console", (msg) => console.log("Browser console:", msg.text()));
-
-    // Navigate with explicit wait conditions and error handling
-    try {
-      console.log("Navigating to URL:", url);
-
-      await page.goto(url, {
-        waitUntil: ["load", "networkidle0"],
-        timeout: 60000,
-      });
-
-      console.log("Page loaded successfully");
-
-      // Wait for specific content to be loaded
-      await page
-        .waitForSelector("#report-content", {
-          timeout: 30000,
-        })
-        .catch((err) => {
-          console.log("Warning: Could not find #report-content");
-        });
-
-      // Remove navbar and button
-      await page.evaluate(() => {
-        const nav = document.querySelector("nav");
-        if (nav) nav.remove();
-
-        const reportContent = document.querySelector("#report-content");
-        if (reportContent) {
-          reportContent.style.marginTop = "0";
-          reportContent.style.paddingTop = "0";
-        }
-
-        const button = document.querySelector(
-          'button[onClick="downloadPDF()"]'
-        );
-        if (button) button.remove();
-      });
-
-      // Wait for network to be idle and images to load
-      await Promise.all([
-        page
-          .waitForNavigation({ waitUntil: "networkidle0", timeout: 30000 })
-          .catch(() => console.log("Navigation timeout - continuing anyway")),
-        page.evaluate(() => {
-          return new Promise((resolve) => {
-            if (document.images.length === 0) resolve();
-            let loaded = 0;
-            const images = document.images;
-            for (let i = 0; i < images.length; i++) {
-              if (images[i].complete) {
-                loaded++;
-              } else {
-                images[i].addEventListener("load", () => {
-                  loaded++;
-                  if (loaded === images.length) resolve();
-                });
-                images[i].addEventListener("error", () => {
-                  loaded++;
-                  if (loaded === images.length) resolve();
-                });
-              }
-            }
-            if (loaded === images.length) resolve();
-          });
-        }),
-      ]);
-
-      console.log("All content loaded, generating PDF");
-    } catch (navigationError) {
-      console.error("Navigation Error Details:", {
-        message: navigationError.message,
-        stack: navigationError.stack,
-        url: url,
-      });
-      throw new AppError(`Navigation failed: ${navigationError.message}`, 500);
-    }
-
-    // Generate PDF with adjusted settings
+    console.log("Generating PDF");
     const pdfBuffer = await page.pdf({
       format: "A3",
       printBackground: true,
-      preferCSSPageSize: true,
       margin: {
         top: "20mm",
         bottom: "20mm",
         left: "20mm",
         right: "20mm",
       },
-      displayHeaderFooter: false,
-      timeout: 60000,
     });
-
-    console.log("PDF generated successfully");
-
-    if (!pdfBuffer || pdfBuffer.length === 0) {
-      throw new AppError("PDF generation resulted in empty buffer", 500);
-    }
 
     const tempFilePath = path.join(
       os.tmpdir(),
       `site-report-${id}-${Date.now()}.pdf`
     );
+    await fs.promises.writeFile(tempFilePath, pdfBuffer);
 
-    try {
-      await fs.promises.writeFile(tempFilePath, pdfBuffer);
-      console.log("PDF written to temporary file:", tempFilePath);
-    } catch (writeError) {
-      console.error("Error writing PDF to temp file:", writeError);
-      throw new AppError("Failed to save PDF to temporary storage", 500);
-    }
-
-    // Set response headers
     res.contentType("application/pdf");
     res.set(
       "Content-Disposition",
       `attachment; filename=site-report-${id}.pdf`
     );
-    res.set("X-Content-Type-Options", "nosniff");
-
-    // Send file and handle cleanup
     res.sendFile(tempFilePath, async (err) => {
       try {
-        if (err) {
-          console.error("Error sending file:", err);
-          throw err;
-        }
-
-        // Cleanup
         await fs.promises.unlink(tempFilePath);
         await browser.close();
-        console.log("Cleanup completed successfully");
       } catch (cleanupError) {
         console.error("Cleanup error:", cleanupError);
       }
@@ -675,14 +555,7 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
         console.error("Error closing browser:", closeError);
       }
     }
-
-    console.error("PDF Generation Error:", {
-      message: error.message,
-      stack: error.stack,
-      url: url,
-      timestamp: new Date().toISOString(),
-    });
-
+    console.error("PDF Generation Error:", error);
     return next(new AppError(`PDF Generation Failed: ${error.message}`, 500));
   }
 });
