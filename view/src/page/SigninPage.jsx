@@ -30,7 +30,7 @@ const SigninPage = () => {
           },
         };
         const { data } = await axiosInstance.post(
-          "/api/v1/user/login",
+          "/user/login",
           { email, password },
           config
         );
