@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -16,7 +17,7 @@ const Logout = () => {
 
     const handleLogout = async () => {
       try {
-        await axiosInstance.get("/api/v1/user/logout");
+        await axiosInstance.get("/user/logout");
 
         if (isMounted) {
           setIsLoading(false);
