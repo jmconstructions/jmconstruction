@@ -288,186 +288,244 @@ exports.getInspectionTrends = catchAsync(async (req, res, next) => {
   });
 });
 exports.generatePDF = catchAsync(async (req, res, next) => {
-  let browser = null;
   const { id } = req.params;
-  const url = `https://jmconstruction-1.onrender.com/pdf/${id}`;
 
   try {
-    browser = await puppeteer.launch({
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-accelerated-2d-canvas",
-        "--disable-gpu",
-        "--no-first-run",
-      ],
-      headless: "new",
-    });
-
-    const page = await browser.newPage();
-
-    // Set longer timeout for navigation
-    await page.setDefaultNavigationTimeout(60000);
-
-    // Set viewport
-    await page.setViewport({
-      width: 1920,
-      height: 1080,
-      deviceScaleFactor: 1,
-    });
-
-    // Add request interception to debug network issues
-    await page.setRequestInterception(true);
-    page.on("request", (request) => {
-      console.log(`Request to: ${request.url()}`);
-      request.continue();
-    });
-
-    page.on("console", (msg) => console.log("Browser console:", msg.text()));
-
-    // Navigate with explicit wait conditions
-    try {
-      await page.goto(url, {
-        waitUntil: ["load", "networkidle0"],
-        timeout: 60000,
-      });
-
-      // Wait for specific content to be loaded
-      await page
-        .waitForSelector("#report-content", {
-          timeout: 30000,
-        })
-        .catch((err) => {
-          console.log("Warning: Could not find #report-content");
-        });
-
-      // Remove navbar and button
-      await page.evaluate(() => {
-        const nav = document.querySelector("nav");
-        if (nav) nav.remove();
-
-        const reportContent = document.querySelector("#report-content");
-        if (reportContent) {
-          reportContent.style.marginTop = "0";
-          reportContent.style.paddingTop = "0";
-        }
-
-        const button = document.querySelector(
-          "button[onClick='downloadPDF()']"
-        );
-        if (button) button.remove();
-      });
-
-      // Wait for network to be idle and images to load
-      await Promise.all([
-        page
-          .waitForNavigation({ waitUntil: "networkidle0", timeout: 30000 })
-          .catch(() => {}),
-        page.evaluate(() => {
-          return new Promise((resolve) => {
-            if (document.images.length === 0) resolve();
-            let loaded = 0;
-            const images = document.images;
-            for (let i = 0; i < images.length; i++) {
-              if (images[i].complete) {
-                loaded++;
-              } else {
-                images[i].addEventListener("load", () => {
-                  loaded++;
-                  if (loaded === images.length) {
-                    resolve();
-                  }
-                });
-                images[i].addEventListener("error", () => {
-                  loaded++;
-                  if (loaded === images.length) {
-                    resolve();
-                  }
-                });
-              }
-            }
-            if (loaded === images.length) resolve();
-          });
-        }),
-      ]);
-    } catch (navigationError) {
-      console.error("Navigation Error Details:", {
-        message: navigationError.message,
-        stack: navigationError.stack,
-        url: url,
-      });
-      throw new AppError(`Navigation failed: ${navigationError.message}`, 500);
-    }
-
-    // Generate PDF with adjusted settings
-    const pdfBuffer = await page.pdf({
+    const options = {
       format: "A3",
+      margin: { top: 20, bottom: 20, left: 20, right: 20 },
       printBackground: true,
-      preferCSSPageSize: true,
-      margin: {
-        top: "20mm",
-        bottom: "20mm",
-        left: "20mm",
-        right: "20mm",
+      beforePrint: async (page) => {
+        await page.addStyleTag({
+          content: `
+            .sticky, nav, .navbar-menu { 
+              display: none !important;
+              height: 0 !important;
+              position: absolute !important;
+              overflow: hidden !important;
+              z-index: -1 !important;
+            }
+            #report-content {
+              padding-top: 0 !important;
+              margin-top: 0 !important;
+              position: absolute !important;
+              top: 0 !important;
+            }
+            body {
+              padding-top: 0 !important;
+              margin-top: 0 !important;
+            }
+          `,
+        });
       },
-      displayHeaderFooter: false,
-      timeout: 60000,
-    });
+    };
 
-    if (!pdfBuffer || pdfBuffer.length === 0) {
-      throw new AppError("PDF generation resulted in empty buffer", 500);
-    }
+    const file = { url: `https://jmconstruction-1.onrender.com/pdf/${id}` };
+    const pdfBuffer = await html_to_pdf.generatePdf(file, options);
 
     const tempFilePath = path.join(
       os.tmpdir(),
       `site-report-${id}-${Date.now()}.pdf`
     );
-
-    try {
-      await fs.promises.writeFile(tempFilePath, pdfBuffer);
-    } catch (writeError) {
-      console.error("Error writing PDF to temp file:", writeError);
-      throw new AppError("Failed to save PDF to temporary storage", 500);
-    }
+    await fs.promises.writeFile(tempFilePath, pdfBuffer);
 
     res.contentType("application/pdf");
     res.set(
       "Content-Disposition",
       `attachment; filename=site-report-${id}.pdf`
     );
-    res.set("X-Content-Type-Options", "nosniff");
-
     res.sendFile(tempFilePath, async (err) => {
-      try {
-        if (err) {
-          console.error("Error sending file:", err);
-          throw err;
-        }
-
-        // Cleanup
-        await fs.promises.unlink(tempFilePath);
-        await browser.close();
-      } catch (cleanupError) {
-        console.error("Cleanup error:", cleanupError);
+      if (err) {
+        console.error("Error sending file:", err);
+        throw err;
       }
+      await fs.promises.unlink(tempFilePath);
     });
   } catch (error) {
-    if (browser) {
-      try {
-        await browser.close();
-      } catch (closeError) {
-        console.error("Error closing browser:", closeError);
-      }
-    }
-
-    console.error("PDF Generation Error:", {
-      message: error.message,
-      stack: error.stack,
-      url: url,
-      timestamp: new Date().toISOString(),
-    });
-
     return next(new AppError(`PDF Generation Failed: ${error.message}`, 500));
   }
 });
+// exports.generatePDF = catchAsync(async (req, res, next) => {
+//   let browser = null;
+//   const { id } = req.params;
+//   const url = `https://jmconstruction-1.onrender.com/pdf/${id}`;
+
+//   try {
+//     browser = await puppeteer.launch({
+//       args: [
+//         "--no-sandbox",
+//         "--disable-setuid-sandbox",
+//         "--disable-dev-shm-usage",
+//         "--disable-accelerated-2d-canvas",
+//         "--disable-gpu",
+//         "--no-first-run",
+//       ],
+//       headless: "new",
+//     });
+
+//     const page = await browser.newPage();
+
+//     // Set longer timeout for navigation
+//     await page.setDefaultNavigationTimeout(60000);
+
+//     // Set viewport
+//     await page.setViewport({
+//       width: 1920,
+//       height: 1080,
+//       deviceScaleFactor: 1,
+//     });
+
+//     // Add request interception to debug network issues
+//     await page.setRequestInterception(true);
+//     page.on("request", (request) => {
+//       console.log(`Request to: ${request.url()}`);
+//       request.continue();
+//     });
+
+//     page.on("console", (msg) => console.log("Browser console:", msg.text()));
+
+//     // Navigate with explicit wait conditions
+//     try {
+//       await page.goto(url, {
+//         waitUntil: ["load", "networkidle0"],
+//         timeout: 60000,
+//       });
+
+//       // Wait for specific content to be loaded
+//       await page
+//         .waitForSelector("#report-content", {
+//           timeout: 30000,
+//         })
+//         .catch((err) => {
+//           console.log("Warning: Could not find #report-content");
+//         });
+
+//       // Remove navbar and button
+//       await page.evaluate(() => {
+//         const nav = document.querySelector("nav");
+//         if (nav) nav.remove();
+
+//         const reportContent = document.querySelector("#report-content");
+//         if (reportContent) {
+//           reportContent.style.marginTop = "0";
+//           reportContent.style.paddingTop = "0";
+//         }
+
+//         const button = document.querySelector(
+//           "button[onClick='downloadPDF()']"
+//         );
+//         if (button) button.remove();
+//       });
+
+//       // Wait for network to be idle and images to load
+//       await Promise.all([
+//         page
+//           .waitForNavigation({ waitUntil: "networkidle0", timeout: 30000 })
+//           .catch(() => {}),
+//         page.evaluate(() => {
+//           return new Promise((resolve) => {
+//             if (document.images.length === 0) resolve();
+//             let loaded = 0;
+//             const images = document.images;
+//             for (let i = 0; i < images.length; i++) {
+//               if (images[i].complete) {
+//                 loaded++;
+//               } else {
+//                 images[i].addEventListener("load", () => {
+//                   loaded++;
+//                   if (loaded === images.length) {
+//                     resolve();
+//                   }
+//                 });
+//                 images[i].addEventListener("error", () => {
+//                   loaded++;
+//                   if (loaded === images.length) {
+//                     resolve();
+//                   }
+//                 });
+//               }
+//             }
+//             if (loaded === images.length) resolve();
+//           });
+//         }),
+//       ]);
+//     } catch (navigationError) {
+//       console.error("Navigation Error Details:", {
+//         message: navigationError.message,
+//         stack: navigationError.stack,
+//         url: url,
+//       });
+//       throw new AppError(`Navigation failed: ${navigationError.message}`, 500);
+//     }
+
+//     // Generate PDF with adjusted settings
+//     const pdfBuffer = await page.pdf({
+//       format: "A3",
+//       printBackground: true,
+//       preferCSSPageSize: true,
+//       margin: {
+//         top: "20mm",
+//         bottom: "20mm",
+//         left: "20mm",
+//         right: "20mm",
+//       },
+//       displayHeaderFooter: false,
+//       timeout: 60000,
+//     });
+
+//     if (!pdfBuffer || pdfBuffer.length === 0) {
+//       throw new AppError("PDF generation resulted in empty buffer", 500);
+//     }
+
+//     const tempFilePath = path.join(
+//       os.tmpdir(),
+//       `site-report-${id}-${Date.now()}.pdf`
+//     );
+
+//     try {
+//       await fs.promises.writeFile(tempFilePath, pdfBuffer);
+//     } catch (writeError) {
+//       console.error("Error writing PDF to temp file:", writeError);
+//       throw new AppError("Failed to save PDF to temporary storage", 500);
+//     }
+
+//     res.contentType("application/pdf");
+//     res.set(
+//       "Content-Disposition",
+//       `attachment; filename=site-report-${id}.pdf`
+//     );
+//     res.set("X-Content-Type-Options", "nosniff");
+
+//     res.sendFile(tempFilePath, async (err) => {
+//       try {
+//         if (err) {
+//           console.error("Error sending file:", err);
+//           throw err;
+//         }
+
+//         // Cleanup
+//         await fs.promises.unlink(tempFilePath);
+//         await browser.close();
+//       } catch (cleanupError) {
+//         console.error("Cleanup error:", cleanupError);
+//       }
+//     });
+//   } catch (error) {
+//     if (browser) {
+//       try {
+//         await browser.close();
+//       } catch (closeError) {
+//         console.error("Error closing browser:", closeError);
+//       }
+//     }
+
+//     console.error("PDF Generation Error:", {
+//       message: error.message,
+//       stack: error.stack,
+//       url: url,
+//       timestamp: new Date().toISOString(),
+//     });
+
+//     return next(new AppError(`PDF Generation Failed: ${error.message}`, 500));
+//   }
+// });
