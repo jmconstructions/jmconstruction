@@ -65,8 +65,8 @@ app.use("/api/v1/sitereport", siteRouter);
 // }
 if (process.env.NODE_ENV === "production") {
   // Serve static files from the React build directory
-  app.use(express.static(path.join(dirname, "view/dist")));
-  app.use("/assets", express.static(path.join(dirname, "view/dist/assets")));
+  app.use(express.static(path.join(__dirname, "view/dist")));
+  app.use("/assets", express.static(path.join(__dirname, "view/dist/assets")));
 
   // Handle React routing, return all requests to React app
   app.get("*", (req, res) => {
