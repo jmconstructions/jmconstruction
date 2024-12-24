@@ -36,12 +36,12 @@ const ReportManagement = () => {
       setIsLoading(true);
       setError("");
       const response = await axios.get("api/v1/sitereport");
-
+      console.log(response);
       if (response.status !== 200) {
         throw new Error("Something went wrong with fetching reports");
       }
 
-      const allReport = response.data.data.data;
+      const allReport = response.data.data;
       setReportData(allReport);
       setFilteredReportData(allReport);
     } catch (err) {
