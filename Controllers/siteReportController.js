@@ -473,26 +473,6 @@ exports.getInspectionTrends = catchAsync(async (req, res, next) => {
 //     return next(new AppError(`PDF Generation Failed: ${error.message}`, 500));
 //   }
 // });
-const puppeteer = require("puppeteer-core");
-const path = require("path");
-const os = require("os");
-const fs = require("fs");
-
-// Utility function to catch async errors
-const catchAsync = (fn) => (req, res, next) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
-};
-
-// Custom error class
-class AppError extends Error {
-  constructor(message, statusCode) {
-    super(message);
-    this.statusCode = statusCode;
-    this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
-    this.isOperational = true;
-    Error.captureStackTrace(this, this.constructor);
-  }
-}
 
 exports.generatePDF = catchAsync(async (req, res, next) => {
   let browser = null;
