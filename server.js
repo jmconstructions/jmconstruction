@@ -22,7 +22,7 @@ mongoose.connect(db, {}).then((con) => {
 
 const app = require("./app");
 
-const portnumber = process.env.PORT || 3000;
+const portnumber = process.env.PORT;
 const server = app.listen(portnumber, () => {
   console.log("app is running on the port 3000");
 });
