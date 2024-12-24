@@ -55,9 +55,10 @@ const OverallChart = () => {
       // );
       // const result = await response.json();
 
-      const result = await axiosInstance.get(
+      const response = await axiosInstance.get(
         `/sitereport/trends?year=${year}&weekly=${weekly}`
       );
+      const result = response.data;
       console.log(result);
 
       if (result.status === "success" && Array.isArray(result.data)) {

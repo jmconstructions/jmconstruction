@@ -38,20 +38,15 @@ const UserManagementPage = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        // const response = await fetch("/user/alluser");
-        const data = await axiosInstance.get("/user/alluser");
-        // if (!response.ok) throw new Error("Failed to fetch users");
-        // const data = await response.json();
-
-        //this page might have an error
-        const userArray = data.users?.data || [];
+        const response = await axiosInstance.get("/user/alluser");
+        const userArray = response.data.users.data || [];
         const transformedUsers = userArray.map((user) => ({
           id: user._id,
           name: user.name,
           email: user.email,
-          role: user.role.toLowerCase().trim(), // Ensure role is lowercase and trimmed
+          role: user.role.toLowerCase().trim(),
           image: user.photo,
-          active: true,
+          active: user.active,
           createdAt: new Date(user.createdAt).toLocaleDateString(),
         }));
 
