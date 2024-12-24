@@ -4,9 +4,9 @@
   "description": "new one",
   "main": "index.js",
   "scripts": {
-    "start": "apt-get update && apt-get install -y chromium && nodemon server.js",
+    "start": " nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npm install && npm install --prefix view && npm run build --prefix view"
+    "build": "apt-get update && apt-get install -y chromium && npm install && npm install --prefix view && npm run build --prefix view"
   },
   "author": "pruthvij",
   "license": "ISC",
