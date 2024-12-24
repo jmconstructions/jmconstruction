@@ -14,7 +14,7 @@ const Navbar = ({ userData }) => {
       <nav className="relative px-4 py-4 flex justify-between items-center bg-white">
         <div className="flex items-center px-4 sm:px-6 lg:px-8">
           <span className="text-2xl font-bold bg-gradient-to-r from-blue-900 to-blue-600 bg-clip-text text-transparent hover:scale-105 transition-transform">
-            BuildTech
+            jmcontructions
           </span>
         </div>
         <a className="text-3xl font-bold leading-none" href="#">
@@ -149,7 +149,7 @@ const Navbar = ({ userData }) => {
             <div className="flex items-center mb-8">
               <div className="flex items-center px-4 sm:px-6 lg:px-8">
                 <span className="text-2xl font-bold bg-gradient-to-r from-blue-900 to-blue-600 bg-clip-text text-transparent hover:scale-105 transition-transform">
-                  BuildTech
+                  jmcontructions
                 </span>
               </div>
               <a className="mr-auto text-3xl font-bold leading-none" href="#">

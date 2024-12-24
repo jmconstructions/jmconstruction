@@ -10,7 +10,7 @@ function NewNavbar() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <span className="text-2xl font-bold bg-gradient-to-r from-blue-900 to-blue-600 bg-clip-text text-transparent hover:scale-105 transition-transform">
-                BuildTech
+                jmcontructions
               </span>
             </div>
 

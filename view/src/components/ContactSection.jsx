@@ -71,7 +71,7 @@ function ContactSection() {
             <div className="space-y-4">
               {[
                 { Icon: Phone, text: "+1 (555) 123-4567" },
-                { Icon: Mail, text: "contact@buildtech.com" },
+                { Icon: Mail, text: "contact@jmcontructions.com" },
                 {
                   Icon: MapPin,
                   text: "123 Construction Ave, City, State 12345",
