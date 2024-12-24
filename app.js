@@ -56,10 +56,6 @@ app.use(xss());
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/sitereport", siteRouter);
 
-app.all("*", (req, res, next) => {
-  next(new AppError(`can't find the ${req.originalUrl} url`));
-});
-
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "view/dist")));
 
@@ -67,5 +63,7 @@ if (process.env.NODE_ENV === "production") {
     res.sendFile(path.resolve(__dirname, "view", "dist", "index.html"));
   });
 }
-
+app.all("*", (req, res, next) => {
+  next(new AppError(`can't find the ${req.originalUrl} url`));
+});
 module.exports = app;
