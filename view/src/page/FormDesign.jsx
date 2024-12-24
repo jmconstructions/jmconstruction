@@ -424,7 +424,7 @@ function FormDesign({ userData }) {
 
     try {
       setLoading(true);
-      const response = await axios.post("/sitereport", formDataToSend, {
+      const response = await axios.post("api/v1/sitereport", formDataToSend, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
