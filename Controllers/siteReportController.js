@@ -295,13 +295,16 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
 
   try {
     browser = await puppeteer.launch({
+      executablePath: "/usr/bin/chromium-browser",
       headless: true,
       args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
         "--disable-gpu",
         "--disable-dev-shm-usage",
-        "--window-size=1920,1080",
+        "--disable-setuid-sandbox",
+        "--no-first-run",
+        "--no-sandbox",
+        "--no-zygote",
+        "--single-process",
       ],
       timeout: 120000, // 2 minutes
     });
