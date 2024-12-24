@@ -56,9 +56,19 @@ app.use(xss());
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/sitereport", siteRouter);
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "view/dist")));
+// if (process.env.NODE_ENV === "production") {
+//   app.use(express.static(path.join(__dirname, "view/dist")));
 
+//   app.get("*", (req, res) => {
+//     res.sendFile(path.resolve(__dirname, "view", "dist", "index.html"));
+//   });
+// }
+if (process.env.NODE_ENV === "production") {
+  // Serve static files from the React build directory
+  app.use(express.static(path.join(dirname, "view/dist")));
+  app.use("/assets", express.static(path.join(dirname, "view/dist/assets")));
+
+  // Handle React routing, return all requests to React app
   app.get("*", (req, res) => {
     res.sendFile(path.resolve(__dirname, "view", "dist", "index.html"));
   });
