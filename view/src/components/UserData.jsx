@@ -11,7 +11,7 @@ const useUserData = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axiosInstance.get("/api/v1/user/user");
+        const response = await axiosInstance.get("/user/user");
         console.log("repsonse", response.data);
         setUserData(response.data);
 
