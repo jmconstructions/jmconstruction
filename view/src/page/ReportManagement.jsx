@@ -35,7 +35,7 @@ const ReportManagement = () => {
     try {
       setIsLoading(true);
       setError("");
-      const response = await axios.get("/sitereport");
+      const response = await axios.get("api/v1/sitereport");
 
       if (response.status !== 200) {
         throw new Error("Something went wrong with fetching reports");
