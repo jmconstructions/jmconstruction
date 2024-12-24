@@ -473,28 +473,64 @@ exports.getInspectionTrends = catchAsync(async (req, res, next) => {
 //     return next(new AppError(`PDF Generation Failed: ${error.message}`, 500));
 //   }
 // });
+const puppeteer = require("puppeteer-core");
+const path = require("path");
+const os = require("os");
+const fs = require("fs");
+
+// Utility function to catch async errors
+const catchAsync = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
+// Custom error class
+class AppError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.statusCode = statusCode;
+    this.status = `${statusCode}`.startsWith("4") ? "fail" : "error";
+    this.isOperational = true;
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
 exports.generatePDF = catchAsync(async (req, res, next) => {
   let browser = null;
   const { id } = req.params;
-  const url = `https://jmconstruction.onrender.com/pdf/${id}`; // URL for PDF generation
+  const url = `https://jmconstruction.onrender.com/pdf/${id}`;
 
   // Set environment variable for Puppeteer cache directory
   process.env.PUPPETEER_CACHE_DIR = "/opt/render/.cache/puppeteer";
 
   try {
-    // Launch Puppeteer browser with specified executable path for cloud environments
+    // Debug logging
+    console.log("Starting PDF generation process for ID:", id);
+    console.log(
+      "Checking if Chromium exists:",
+      fs.existsSync("/usr/bin/chromium")
+    );
+
+    // Launch Puppeteer browser with Chromium
     browser = await puppeteer.launch({
       headless: true,
-      executablePath: "/usr/bin/google-chrome-stable", // Path to Chrome binary in Render
+      executablePath: "/usr/bin/chromium",
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
         "--disable-gpu",
         "--disable-dev-shm-usage",
         "--window-size=1920,1080",
+        "--disable-software-rasterizer",
+        "--disable-dev-tools",
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process", // Important for render.com
+        "--disable-extensions",
       ],
       timeout: 120000, // 2 minutes
     });
+
+    console.log("Browser launched successfully");
 
     const page = await browser.newPage();
 
@@ -517,12 +553,16 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
 
     page.on("console", (msg) => console.log("Browser console:", msg.text()));
 
-    // Navigate with explicit wait conditions
+    // Navigate with explicit wait conditions and error handling
     try {
+      console.log("Navigating to URL:", url);
+
       await page.goto(url, {
         waitUntil: ["load", "networkidle0"],
         timeout: 60000,
       });
+
+      console.log("Page loaded successfully");
 
       // Wait for specific content to be loaded
       await page
@@ -545,7 +585,7 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
         }
 
         const button = document.querySelector(
-          "button[onClick='downloadPDF()']"
+          'button[onClick="downloadPDF()"]'
         );
         if (button) button.remove();
       });
@@ -554,7 +594,7 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
       await Promise.all([
         page
           .waitForNavigation({ waitUntil: "networkidle0", timeout: 30000 })
-          .catch(() => {}),
+          .catch(() => console.log("Navigation timeout - continuing anyway")),
         page.evaluate(() => {
           return new Promise((resolve) => {
             if (document.images.length === 0) resolve();
@@ -566,15 +606,11 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
               } else {
                 images[i].addEventListener("load", () => {
                   loaded++;
-                  if (loaded === images.length) {
-                    resolve();
-                  }
+                  if (loaded === images.length) resolve();
                 });
                 images[i].addEventListener("error", () => {
                   loaded++;
-                  if (loaded === images.length) {
-                    resolve();
-                  }
+                  if (loaded === images.length) resolve();
                 });
               }
             }
@@ -582,6 +618,8 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
           });
         }),
       ]);
+
+      console.log("All content loaded, generating PDF");
     } catch (navigationError) {
       console.error("Navigation Error Details:", {
         message: navigationError.message,
@@ -606,6 +644,8 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
       timeout: 60000,
     });
 
+    console.log("PDF generated successfully");
+
     if (!pdfBuffer || pdfBuffer.length === 0) {
       throw new AppError("PDF generation resulted in empty buffer", 500);
     }
@@ -617,11 +657,13 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
 
     try {
       await fs.promises.writeFile(tempFilePath, pdfBuffer);
+      console.log("PDF written to temporary file:", tempFilePath);
     } catch (writeError) {
       console.error("Error writing PDF to temp file:", writeError);
       throw new AppError("Failed to save PDF to temporary storage", 500);
     }
 
+    // Set response headers
     res.contentType("application/pdf");
     res.set(
       "Content-Disposition",
@@ -629,6 +671,7 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
     );
     res.set("X-Content-Type-Options", "nosniff");
 
+    // Send file and handle cleanup
     res.sendFile(tempFilePath, async (err) => {
       try {
         if (err) {
@@ -639,6 +682,7 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
         // Cleanup
         await fs.promises.unlink(tempFilePath);
         await browser.close();
+        console.log("Cleanup completed successfully");
       } catch (cleanupError) {
         console.error("Cleanup error:", cleanupError);
       }
