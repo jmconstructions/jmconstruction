@@ -46,6 +46,14 @@ if (process.env.NODE_ENV === "development") {
     })
   );
 }
+const cors = require("cors");
+
+app.use(
+  cors({
+    origin: "https://jmconstruction2.onrender.com",
+    credentials: true,
+  })
+);
 
 app.use(cookieparser());
 
