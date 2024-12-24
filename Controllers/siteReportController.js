@@ -306,6 +306,7 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
         "--no-zygote",
         "--single-process",
       ],
+      ignoreDefaultArgs: ["--disable-extensions"],
       timeout: 120000, // 2 minutes
     });
 
