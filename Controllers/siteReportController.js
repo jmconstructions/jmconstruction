@@ -321,7 +321,7 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
       },
     };
 
-    const file = { url: `https://jmconstruction-1.onrender.com/pdf/${id}` };
+    const file = { url: `https://jmconstruction.onrender.com/pdf/${id}` };
     const pdfBuffer = await html_to_pdf.generatePdf(file, options);
 
     const tempFilePath = path.join(
