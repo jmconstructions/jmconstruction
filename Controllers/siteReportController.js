@@ -9,6 +9,7 @@ const catchAsync = require("../utils/catchAsync");
 const path = require("path");
 const fs = require("fs");
 const os = require("os");
+const html_to_pdf = require("html-pdf-node");
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
