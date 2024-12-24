@@ -481,17 +481,34 @@ exports.generatePDF = catchAsync(async (req, res, next) => {
 
   try {
     console.log("Starting PDF generation process");
-
-    // Simplified browser launch configuration
     browser = await puppeteer.launch({
       headless: true,
+      executablePath: "/usr/bin/chromium-browser", // Changed from chromium to chromium-browser
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
         "--disable-gpu",
         "--disable-dev-shm-usage",
+        "--window-size=1920,1080",
+        "--disable-software-rasterizer",
+        "--disable-dev-tools",
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process",
+        "--disable-extensions",
       ],
+      timeout: 120000,
     });
+    // Simplified browser launch configuration
+    // browser = await puppeteer.launch({
+    //   headless: true,
+    //   args: [
+    //     "--no-sandbox",
+    //     "--disable-setuid-sandbox",
+    //     "--disable-gpu",
+    //     "--disable-dev-shm-usage",
+    //   ],
+    // });
 
     const page = await browser.newPage();
     await page.setDefaultNavigationTimeout(60000);
