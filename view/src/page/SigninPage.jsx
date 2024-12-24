@@ -1,6 +1,6 @@
 import loginImage from "../assets/imageSingin.webp";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios";
 import { useState } from "react";
 import Loading from "../components/Animation/Loading";
 import SnackBar from "../components/Animation/Snackbar.jsx";
@@ -30,7 +30,8 @@ const SigninPage = () => {
           },
         };
         const { data } = await axiosInstance.post(
-          "/api/v1/user/login",
+          // "/api/v1/user/login",
+          "/user/login",
           { email, password },
           config
         );
